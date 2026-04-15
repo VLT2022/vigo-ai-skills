@@ -1,0 +1,31 @@
+{
+  "_comment": "vigo-mcp 配置模板。把此 JSON 片段的 mcpServers.vigo-mcp 节点复制到你所在 AI 工具的 MCP 配置文件里，并把 <PASTE_YOUR_VGK_LIVE_KEY_HERE> 替换为从 vigolive 小程序「我的 → AI 接入」生成的 API Key。",
+  "_docs": "https://github.com/vigolive/vigo-ai-skills",
+
+  "mcpServers": {
+    "vigo-mcp": {
+      "_description": "远程 HTTP/SSE 模式（推荐，所有主流客户端都支持）。",
+      "transport": "http",
+      "url": "https://mcp.vigolive.cn/mcp",
+      "headers": {
+        "X-API-Key": "<PASTE_YOUR_VGK_LIVE_KEY_HERE>"
+      }
+    }
+  },
+
+  "_stdio_fallback_template": {
+    "_description": "如果你的 AI 工具只支持 stdio 模式（极少数老版本），可使用 mcp-remote 代理。需 npm install -g @modelcontextprotocol/mcp-remote 后启用。",
+    "mcpServers": {
+      "vigo-mcp": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/mcp-remote",
+          "https://mcp.vigolive.cn/mcp",
+          "--header",
+          "X-API-Key:<PASTE_YOUR_VGK_LIVE_KEY_HERE>"
+        ]
+      }
+    }
+  }
+}
