@@ -104,7 +104,7 @@ if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') 
 <section class="py-16 px-6 bg-white dark:bg-night-2 border-y border-ink-5/40 dark:border-white/[0.04] transition-colors">
   <div class="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
     <div><div class="text-3xl sm:text-4xl font-black text-ink dark:text-white mb-1">7</div><div class="text-sm text-ink-4 dark:text-gray-500">个 AI 工具</div></div>
-    <div><div class="text-3xl sm:text-4xl font-black text-ink dark:text-white mb-1">500</div><div class="text-sm text-ink-4 dark:text-gray-500">次/天免费调用</div></div>
+    <div><div class="text-3xl sm:text-4xl font-black text-ink dark:text-white mb-1">30</div><div class="text-sm text-ink-4 dark:text-gray-500">次/天免费调用</div></div>
     <div><div class="text-3xl sm:text-4xl font-black text-ink dark:text-white mb-1">10+</div><div class="text-sm text-ink-4 dark:text-gray-500">覆盖城市</div></div>
     <div><div class="text-3xl sm:text-4xl font-black text-ink dark:text-white mb-1">100%</div><div class="text-sm text-ink-4 dark:text-gray-500">直租真房源</div></div>
   </div>
@@ -148,11 +148,19 @@ if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') 
         <p class="text-ink-3 dark:text-gray-500 text-sm">小区背景、商圈评价、租房常识</p>
       </div>
     </div>
-    <div class="mt-4 bg-accent-soft dark:bg-[#10C1A4]/5 rounded-2xl p-6 border border-accent/15 dark:border-[#10C1A4]/20 card-lift cursor-pointer hover:shadow-lg hover:shadow-ink/5 dark:hover:shadow-none transition-all flex items-center gap-4">
-      <code class="text-accent dark:text-[#10C1A4] text-xs font-mono bg-white dark:bg-night-2 px-2 py-0.5 rounded border border-accent/15 dark:border-[#10C1A4]/20 shrink-0">get_contact_qrcode</code>
-      <div>
-        <span class="text-ink dark:text-white font-medium">联系房东</span>
-        <span class="text-ink-3 dark:text-gray-500 text-sm ml-2">生成二维码，微信扫一扫直接进唯果小程序联系房东看房</span>
+    <div class="grid sm:grid-cols-2 gap-4 mt-4">
+      <div class="bg-accent-soft dark:bg-[#10C1A4]/5 rounded-2xl p-6 border border-accent/15 dark:border-[#10C1A4]/20 card-lift cursor-pointer hover:shadow-lg hover:shadow-ink/5 dark:hover:shadow-none transition-all">
+        <code class="text-accent dark:text-[#10C1A4] text-xs font-mono bg-white dark:bg-night-2 px-2 py-0.5 rounded border border-accent/15 dark:border-[#10C1A4]/20">get_contact_qrcode</code>
+        <p class="text-ink dark:text-white font-medium mt-3 mb-1.5">联系房东</p>
+        <p class="text-ink-3 dark:text-gray-500 text-sm">生成二维码，微信扫一扫直接进唯果小程序联系房东</p>
+      </div>
+      <div class="bg-accent-soft dark:bg-[#10C1A4]/5 rounded-2xl p-6 border border-accent/15 dark:border-[#10C1A4]/20 card-lift cursor-pointer hover:shadow-lg hover:shadow-ink/5 dark:hover:shadow-none transition-all">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-accent dark:text-[#10C1A4]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+          <span class="text-accent dark:text-[#10C1A4] text-xs font-medium">Skill 内置</span>
+        </div>
+        <p class="text-ink dark:text-white font-medium mt-3 mb-1.5">高德地图看房</p>
+        <p class="text-ink-3 dark:text-gray-500 text-sm">AI 自动生成交互式地图，标注所有房源 + 工作地点 + 通勤圈，浏览器打开可缩放点击</p>
       </div>
     </div>
   </div>
@@ -222,9 +230,7 @@ if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') 
   <div class="max-w-4xl mx-auto text-center">
     <p class="text-ink-4 dark:text-gray-500 text-sm mb-6">支持主流 AI 工具</p>
     <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-ink-4 dark:text-gray-500 text-sm font-medium">
-      <span class="hover:text-ink dark:hover:text-white transition-colors cursor-default">Claude Desktop</span>
-      <span class="text-ink-5 dark:text-gray-700">·</span>
-      <span class="hover:text-ink dark:hover:text-white transition-colors cursor-default">Claude Code</span>
+      <span class="hover:text-ink dark:hover:text-white transition-colors cursor-default">Claude</span>
       <span class="text-ink-5 dark:text-gray-700">·</span>
       <span class="hover:text-ink dark:hover:text-white transition-colors cursor-default">Cursor</span>
       <span class="text-ink-5 dark:text-gray-700">·</span>
