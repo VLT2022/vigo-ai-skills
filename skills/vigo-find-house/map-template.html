@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vigolive 房源地图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body, #map { width: 100%; height: 100%; }
+  .info-card {
+    padding: 10px 14px;
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 260px;
+  }
+  .info-card__title { font-weight: 600; font-size: 14px; color: #20252a; margin-bottom: 4px; }
+  .info-card__price { color: #e54545; font-weight: 600; font-size: 15px; }
+  .info-card__meta { color: #8c9097; font-size: 12px; margin-top: 2px; }
+  .legend {
+    position: fixed; bottom: 20px; left: 20px; background: rgba(255,255,255,0.95);
+    border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #5d6470;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1); z-index: 999;
+    font-family: -apple-system, sans-serif;
+  }
+  .legend__item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .legend__dot { width: 10px; height: 10px; border-radius: 50%; }
+  .legend__dot--house { background: #e54545; }
+  .legend__dot--work { background: #1db990; }
+</style>
+<!-- AMAP_KEY_PLACEHOLDER: 替换为你的高德 JS Web Key + SecurityCode -->
+<script>
+window._AMapSecurityConfig = { securityJsCode: 'YOUR_SECURITY_CODE' };
+</script>
+<script src="https://webapi.amap.com/maps?v=2.0&key=YOUR_AMAP_JS_KEY&plugin=AMap.Scale,AMap.ToolBar"></script>
+</head>
+<body>
+<div id="map"></div>
+<div class="legend">
+  <div class="legend__item"><span class="legend__dot legend__dot--house"></span>房源位置</div>
+  <div class="legend__item"><span class="legend__dot legend__dot--work"></span>工作地点</div>
+  <div style="margin-top:6px;color:#95a0ab;">Powered by vigolive MCP</div>
+</div>
+
+<script>
+// =====================================================================
+// AI 在生成 HTML 时，用实际搜索结果替换下面这个对象。
+// 格式说明：
+//   houses: [{ id, name, price, layout, lat, lng }]
+//   workplace: { name, lat, lng } | null
+//   radiusM: number | null  （通勤搜索半径，米）
+// =====================================================================
+window.VIGO_MAP_DATA = {};
+
+(function() {
+  var data = window.VIGO_MAP_DATA || {};
+  var houses = data.houses || [];
+  var workplace = data.workplace || null;
+  var radiusM = data.radiusM || null;
+
+  var map = new AMap.Map('map', {
+    zoom: 12,
+    viewMode: '2D',
+    resizeEnable: true,
+  });
+  map.addControl(new AMap.Scale());
+  map.addControl(new AMap.ToolBar({ position: 'RT' }));
+
+  var markers = [];
+
+  // 房源标记
+  houses.forEach(function(h, i) {
+    if (!h.lat || !h.lng) return;
+    var marker = new AMap.Marker({
+      position: [h.lng, h.lat],
+      title: h.name || ('房源 ' + (i + 1)),
+      content: '<div style="background:#e54545;color:#fff;border-radius:50%;width:28px;height:28px;'
+        + 'display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;'
+        + 'box-shadow:0 2px 6px rgba(0,0,0,0.3);">' + (i + 1) + '</div>',
+      offset: new AMap.Pixel(-14, -14),
+    });
+
+    var info = new AMap.InfoWindow({
+      content: '<div class="info-card">'
+        + '<div class="info-card__title">' + (h.name || '未知小区') + '</div>'
+        + '<div class="info-card__price">¥' + (h.price || '?') + '/月</div>'
+        + '<div class="info-card__meta">' + (h.layout || '') + '</div>'
+        + '</div>',
+      offset: new AMap.Pixel(0, -20),
+    });
+    marker.on('click', function() { info.open(map, marker.getPosition()); });
+    map.add(marker);
+    markers.push(marker);
+  });
+
+  // 工作地点标记
+  if (workplace && workplace.lat && workplace.lng) {
+    var workMarker = new AMap.Marker({
+      position: [workplace.lng, workplace.lat],
+      title: workplace.name || '工作地点',
+      content: '<div style="background:#1db990;color:#fff;border-radius:50%;width:32px;height:32px;'
+        + 'display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;'
+        + 'box-shadow:0 2px 8px rgba(29,185,144,0.4);">★</div>',
+      offset: new AMap.Pixel(-16, -16),
+    });
+    map.add(workMarker);
+    markers.push(workMarker);
+
+    // 通勤半径圆
+    if (radiusM && radiusM > 0) {
+      var circle = new AMap.Circle({
+        center: [workplace.lng, workplace.lat],
+        radius: radiusM,
+        strokeColor: '#1db990',
+        strokeWeight: 2,
+        strokeOpacity: 0.6,
+        fillColor: '#1db990',
+        fillOpacity: 0.08,
+      });
+      map.add(circle);
+    }
+  }
+
+  // 自动缩放到所有标记
+  if (markers.length > 0) {
+    map.setFitView(markers, false, [60, 60, 60, 60]);
+  }
+})();
+</script>
+</body>
+</html>
