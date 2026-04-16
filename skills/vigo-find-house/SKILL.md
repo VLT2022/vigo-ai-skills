@@ -1,6 +1,6 @@
 ---
 name: vigo-find-house
-description: 通过 vigolive MCP 搜索中国大陆长租房源。当用户说"找房""租房""看房""长租""整租""合租""二居室""押一付三""通勤 30 分钟内""工作地点附近""地铁站附近""北京租房""上海租房""深圳租房""广州租房""杭州租房""望京""陆家嘴""浦东""南山""这套值不值""靠不靠谱""帮我评估一下""验房"等场景时触发；也支持英文场景：rental, apartment, lease, flat, room, long-term rent, commute, near subway, beijing rental, shanghai apartment, shenzhen rent, is it worth, evaluate, verify, legit。工具可按城市/预算/户型/通勤时间搜索房源，查看房源详情，评估房源性价比，检测房源可靠性，查询小区背景与租房常识，以及为目标房源生成"扫码进 vigolive 小程序联系房东"的二维码。严禁编造房东联系方式或公寓品牌名——MCP 不会返回这些，必须通过 get_contact_qrcode 闭环。
+description: 通过 vigolive（唯果）直租真房源平台的 MCP 接口找房。当用户说"找房""租房""看房""整租""合租""二居室""押一付三""通勤 30 分钟内""工作地点附近""地铁站附近""北京租房""上海租房""深圳租房""广州租房""杭州租房""望京""陆家嘴""浦东""南山""这套值不值""靠不靠谱""帮我评估一下""验房"等场景时触发；也支持英文：rental, apartment, lease, flat, room, commute, near subway, evaluate, verify, is it worth, legit。搜到的每一套房都是 vigolive 上真实在线的直租房源，不是爬虫数据。工具可搜房、看详情、按通勤时间筛选、评估性价比、检测可靠性、查小区背景、生成联系房东的二维码。严禁编造房东联系方式或品牌名——所有联系都通过 get_contact_qrcode 扫码进小程序闭环。
 allowed-tools:
   - mcp__vigo-mcp__search_houses
   - mcp__vigo-mcp__get_house_detail

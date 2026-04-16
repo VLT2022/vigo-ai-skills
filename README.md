@@ -1,181 +1,116 @@
 # vigo-ai-skills
 
-> 让 Claude Desktop、Claude Code、Cursor、Windsurf、Codex CLI、OpenCode 等主流 AI 工具帮你找中国大陆的长租房源。
+> 在 Claude / Cursor 里直接搜 vigolive 的直租真房源。
 
-**vigolive** 是一家服务北上广深杭等主流城市的长租房源平台。本 repo 提供一个标准 Anthropic SKILL.md 格式的 Skill + 一键安装脚本，搭配 [vigolive MCP Server](https://mcp.vigolive.cn/mcp) 使用，让你在任意支持 MCP 的 AI 工具里说"帮我在上海陆家嘴找个 8000 以内的整租"就能拿到真实房源结果。
+[vigolive（唯果）](https://vigolive.cn) 是一个直租找房平台，房源都是房东直发、平台审核的真实在线房源，覆盖北京、上海、深圳、广州、杭州等城市。
+
+这个 repo 是 vigolive 的 **AI 找房 Skill**——装上之后，你在 Claude Code、Cursor、Windsurf 等 AI 工具里说一句"帮我在望京找个 6000 以下的整租"，AI 就会自动调用 vigolive 的接口帮你搜房、看详情、评估性价比、检测可靠性，最后生成一个二维码让你扫码直接进小程序联系房东。
+
+**不是爬虫，不是模拟数据**——搜到的每一套房都是 vigolive 平台上真实在线的直租房源。
 
 ---
 
-## 5 分钟接入
+## 快速开始
 
-### 第 1 步：生成 API Key（1 分钟）
+### 1. 拿一把 API Key
 
-在手机上打开 **vigolive 小程序 →「我的」→「AI 接入」→「生成新的 API Key」**：
+打开微信搜 **vigolive 小程序 →「我的」→「MCP 连接」→ 生成 API Key**，复制 `vgk_live_xxx` 开头的 key（只显示一次）。
 
-1. 给它起个名字（如"我的 Cursor"）
-2. 复制生成的 `vgk_live_xxx` 开头的 key（**一次性显示**，关闭后无法再看完整值）
-3. 保存好
-
-详细图文步骤见 [`docs/api-key.md`](docs/api-key.md)。
-
-### 第 2 步：一键安装（2 分钟）
+### 2. 安装 Skill
 
 ```bash
-git clone https://github.com/vigolive/vigo-ai-skills.git
+git clone https://github.com/VLT2022/vigo-ai-skills.git
 cd vigo-ai-skills
 ./install.sh
 ```
 
-脚本会自动：
+脚本会自动检测你电脑上的 AI 工具，把 Skill 文件复制到对应目录。
 
-- 检测你电脑上已安装的 AI 工具（Claude Code、Claude Desktop、Cursor、Codex CLI、OpenCode 等）
-- 让你选择要安装到哪个（可多选）
-- 把 `skills/vigo-find-house/` 复制到对应工具的 skills 目录
-- 打印下一步操作（把 MCP 配置粘贴到配置文件 + 替换 API Key 占位符）
+### 3. 配置 MCP
 
-手动安装步骤见 [`docs/how-to-install.md`](docs/how-to-install.md)。
+把下面的配置粘到你 AI 工具的 MCP 配置文件里，`X-API-Key` 换成你的 key：
 
-### 第 3 步：开始对话（2 分钟）
-
-重启 AI 工具，试着说：
-
+```json
+{
+  "mcpServers": {
+    "vigo-mcp": {
+      "transport": "http",
+      "url": "https://mcp.vigolive.cn/mcp",
+      "headers": { "X-API-Key": "vgk_live_你的key" }
+    }
+  }
+}
 ```
-帮我在北京望京 SOHO 附近找 5000 以下整租，通勤 30 分钟内
-```
 
-AI 会自动识别需求 → 调用 `vigo-mcp.search_by_commute` → 返回表格化的房源列表。想看某套细节时说"第 2 套详细看看"，想联系房东时说"这套怎么联系"，AI 会返回一张二维码让你用微信扫码进 vigolive 小程序闭环。
+重启 AI 工具，试试说"帮我在北京望京找 5000 以下整租，通勤 30 分钟内"。
 
 ---
 
-## 兼容性矩阵
+## 能做什么
 
-vigo-mcp 是远程 HTTP + SSE 服务，以下 AI 工具都能一次配置、直接使用：
+7 个工具，覆盖找房全流程：
 
-| 客户端 | 厂商 | MCP 支持 | 传输 | vigo-mcp 可用 |
-|--------|------|---------|------|-------------|
-| Claude Desktop | Anthropic | ✅ 原生 | HTTP + SSE | ✅ |
-| Claude Code | Anthropic | ✅ 原生 | HTTP + SSE + stdio | ✅ |
-| Cursor | Cursor | ✅ 原生 | HTTP + SSE | ✅ |
-| Windsurf | Codeium | ✅ 原生 | HTTP + SSE | ✅ |
-| Cline / Roo Cline | 开源 | ✅ 原生 | HTTP + stdio | ✅ |
-| Continue | 开源 | ✅ 原生 | stdio | ✅ |
-| Zed | Zed Industries | ✅ 原生 | HTTP | ✅ |
-| OpenCode / OpenClaw | 开源 | ✅ 原生 | HTTP + stdio | ✅ |
-| Codex CLI | OpenAI | ✅ 原生 | HTTP + stdio | ✅ |
-| ChatGPT Desktop | OpenAI | ⚠️ Plus/Pro plan 分阶段开放 | HTTP | ✅ |
-| GitHub Copilot Chat | GitHub | 🔜 宣布中 | - | 🔜 |
-| Gemini Code | Google | 🔜 宣布中 | - | 🔜 |
-| 通义千问 / 文心一言 / Kimi | 中国厂商 | ❌ 暂不原生支持 | - | 🔧 需 LangChain 适配层 |
-
-**结论**：一次配置，90% 的主流 AI 用户立刻可用。
-
----
-
-## 可用工具
-
-vigo-mcp 提供 7 个工具，在 Claude Code 等支持 slash command 的客户端里可直接手打调用：
-
-| 工具 | 用途 | Slash command 示例 |
-|------|------|--------------------|
-| `search_houses` | 按城市/预算/户型搜索 | `/mcp__vigo-mcp__search_houses city="北京" price_max=6000 rent_type=1` |
-| `get_house_detail` | 查看某套详情 | `/mcp__vigo-mcp__get_house_detail house_id="abc123"` |
-| `search_by_commute` | 按通勤时间搜索 | `/mcp__vigo-mcp__search_by_commute city="北京" workplace="望京SOHO" max_commute_minutes=30` |
-| `query_knowledge` | 查询小区背景/租房常识 | `/mcp__vigo-mcp__query_knowledge query="望京小区怎么样"` |
-| `get_contact_qrcode` | 获取房源联系二维码（扫码进小程序） | `/mcp__vigo-mcp__get_contact_qrcode house_id="abc123"` |
-| `evaluate_house` | 评估房源性价比（4 维评分） | `/mcp__vigo-mcp__evaluate_house house_id="abc123"` |
-| `verify_house` | 检测房源可靠性（5 项检测） | `/mcp__vigo-mcp__verify_house house_id="abc123"` |
-
-或者直接用自然语言，AI 会通过 Skill 指引自主选择合适的工具。见 [`skills/vigo-find-house/examples.md`](skills/vigo-find-house/examples.md) 里的 8 个典型对话场景。
-
----
-
-## API Key 配额
-
-| 项目 | 免费额度 |
+| 工具 | 干嘛用的 |
 |------|---------|
-| `search_houses` / `get_house_detail` / `search_by_commute` / `query_knowledge` / `evaluate_house` / `verify_house` | **500 次/天/key** |
-| `get_contact_qrcode` | **50 次/天/key** |
-| 分钟突发上限 | 60 次/分钟 |
+| `search_houses` | 按城市/预算/户型/地铁搜房 |
+| `get_house_detail` | 看某套房的详细信息 |
+| `search_by_commute` | 按通勤时间搜（比如"望京 SOHO 30 分钟内"）|
+| `query_knowledge` | 问小区背景、租房常识 |
+| `evaluate_house` | 评估一套房值不值（性价比/房况/透明度/时效 4 维评分）|
+| `verify_house` | 验一套房靠不靠谱（价格异常/信息完整度/挂牌时长等 5 项检测）|
+| `get_contact_qrcode` | 生成联系房东的二维码（扫码进 vigolive 小程序）|
 
-- 超限返回 JSON-RPC error `-32001`，请等待次日重置或通过 vigolive 小程序直接使用 AI 找房
-- 单用户最多持有 5 把 active key，可在小程序随时吊销旧 key
-- 免费配额对大部分个人用户足够。批量商用接入请联系 vigolive 商务
+你也可以不用自然语言，直接 slash command 调：
+
+```
+/mcp__vigo-mcp__search_houses city="北京" price_max=6000 rent_type=1
+/mcp__vigo-mcp__evaluate_house house_id="hs4094008ac7774611"
+```
+
+装了 Skill 之后 AI 会更聪明：自动识别"找房"意图、按通勤优先级选工具、用表格展示结果、纠结时主动建议评估+验房。不装也能用 MCP，但体验差一点。
 
 ---
 
-## 隐私与合规
+## 支持的 AI 工具
 
-**vigolive MCP 永远不会返回任何联系方式和品牌信息**：
+基本上主流的都支持：Claude Desktop、Claude Code、Cursor、Windsurf、Codex CLI、Cline、Continue、Zed、OpenCode。ChatGPT Desktop 也在陆续开放 MCP 支持。
 
-- ❌ 不返回房东姓名、电话、微信、头像
-- ❌ 不返回管家联系方式
-- ❌ 不返回公寓品牌、商家名称、apartmentName
-- ✅ 返回去品牌化的房源本体信息（户型、价格、位置、图片、描述）
-- ✅ 提供「扫码进小程序」的二维码作为唯一合规联系路径
+完整兼容列表见 [docs/how-to-install.md](docs/how-to-install.md)。
 
-这样设计是为了：
-1. 保护房东个人隐私
-2. 防止品牌信息被 AI 编造或误用
-3. 把成交闭环落在 vigolive 小程序内，合规可追溯
+---
 
-**AI 不应该编造** MCP 没返回的字段。如果你发现 AI 给你报了一个房东电话，那一定是幻觉，请不要相信。
+## 配额
+
+| | 免费额度 |
+|---|---------|
+| 搜索/详情/评估/验房/知识库 | 500 次/天/key |
+| 联系二维码 | 50 次/天/key |
+
+一个账号最多 5 把 key，每把独立计数。超了明天自动重置，也可以去小程序里直接搜。
+
+---
+
+## 关于隐私
+
+vigolive MCP **不返回任何联系方式和品牌信息**——没有房东电话、没有管家微信、没有"自如""蛋壳"之类的品牌名。想联系房东？只能走二维码扫码进小程序。
+
+如果 AI 告诉你一个房东的电话号码，那一定是它编的，别信。
 
 ---
 
 ## 示例对话
 
-完整的 8 个典型对话场景见 [`skills/vigo-find-house/examples.md`](skills/vigo-find-house/examples.md)：
-
-1. 简单条件搜索
-2. 通勤搜索
-3. 多轮推进（search → detail → evaluate → verify → qrcode）
-4. 模糊需求澄清
-5. 拒绝越界（不给联系方式 / 不编造品牌）
-6. 评估房源性价比（evaluate_house）
-7. 验房检测（verify_house）
-8. 决策全流程（search → detail → evaluate → verify → qrcode）
-
----
-
-## FAQ
-
-### Q: 我没装 MCP 客户端，只装了 Skill，能用吗？
-**A**: 不能。Skill 只是"使用说明书"，真正的能力来自 MCP Server。没装 MCP 时，AI 看到 Skill 里的工具名却无法调用，会回退到幻觉或拒答。
-
-### Q: 装了 MCP 客户端，但没装 Skill，能用吗？
-**A**: 可以。你可以用 slash command 显式调用（`/mcp__vigo-mcp__search_houses ...`）或 @mention 让 AI 知道这个工具。装 Skill 只是让 AI 在自然语言场景下"更聪明地主动用"这些工具。
-
-### Q: AI 没有触发 Skill / 不主动调 vigo-mcp，怎么办？
-**A**: 见 [`docs/troubleshooting.md`](docs/troubleshooting.md)。常见原因是 Skill 路径不对或 description 里的关键词没匹配到。
-
-### Q: API Key 泄漏了怎么办？
-**A**: 立即去 vigolive 小程序「我的 →AI 接入」吊销该 key，然后生成一把新的。吊销后 Redis 缓存会在 5 分钟内全网生效。
-
-### Q: 配额不够用怎么办？
-**A**: 免费版配额足够个人日常使用。批量或商用场景请联系 vigolive 商务申请提额。
-
-### Q: 能否在一个账号下给多个工具分别配 key？
-**A**: 可以。一个账号最多 5 把 active key，建议为每个 AI 工具分别生成一把（"我的 Cursor"、"我的 Claude Desktop"、"公司电脑 Claude Code"），方便追踪和独立吊销。
-
-### Q: 小程序端看到的房源和 MCP 看到的有什么区别？
-**A**: MCP 是**规则搜索**（按条件过滤），小程序是**AI 个性化推荐**（基于用户画像主动找房）。想要 AI 深度推荐，请用 vigolive 小程序内的 AI 找房功能。
-
-### Q: 支持哪些城市？
-**A**: 北京、上海、深圳、广州、杭州等 vigolive 已开通的主流城市。未开通城市可能返回 0 结果。
-
-### Q: 可以商用吗？
-**A**: 个人和小规模集成欢迎。商用请联系 vigolive 商务（见官网）获取商用授权。
+[examples.md](skills/vigo-find-house/examples.md) 里有 8 个完整对话场景，从简单搜索到全流程决策（搜房 → 看详情 → 评估 → 验房 → 联系管家）都有。
 
 ---
 
 ## 链接
 
-- **vigolive 官网**：https://vigolive.cn
-- **vigolive 小程序**：微信搜索"vigolive"
-- **vigo-mcp Server**：https://mcp.vigolive.cn/mcp
-- **问题反馈**：GitHub Issues（迁移到独立 repo 后）
-- **MCP 协议**：https://modelcontextprotocol.io
+- [vigolive 官网](https://vigolive.cn)
+- [vigolive 小程序](https://vigolive.cn)（微信搜"vigolive"）
+- [MCP Server](https://mcp.vigolive.cn/mcp)
+- [问题反馈](https://github.com/VLT2022/vigo-ai-skills/issues)
 
 ## License
 
-MIT — 见 [`LICENSE`](LICENSE)
+MIT
