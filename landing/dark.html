@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>唯果 MCP — 让 AI 帮你找直租真房源</title>
+<meta name="description" content="Vigolive唯果租房 MCP 接口：让 Claude、Cursor 等 AI 工具直接搜直租真房源、评估性价比、验房、联系房东。">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { DEFAULT: '#0D8476', light: '#10C1A4', cyan: '#02C4C4' },
+        dark: { DEFAULT: '#0A0F1A', 2: '#111827', 3: '#1F2937', 4: '#374151' },
+      },
+      fontFamily: {
+        sans: ['Inter', 'Noto Sans SC', 'system-ui', 'sans-serif'],
+      },
+    },
+  },
+}
+</script>
+<style>
+  .hero-gradient {
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16, 193, 164, 0.15), transparent),
+                radial-gradient(ellipse 60% 50% at 80% 50%, rgba(2, 196, 196, 0.08), transparent),
+                #0A0F1A;
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #10C1A4 0%, #02C4C4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .card-glow:hover { box-shadow: 0 0 0 1px rgba(16, 193, 164, 0.3), 0 8px 40px rgba(16, 193, 164, 0.08); }
+  .btn-glow { box-shadow: 0 0 24px rgba(16, 193, 164, 0.25); }
+  .btn-glow:hover { box-shadow: 0 0 40px rgba(16, 193, 164, 0.35); }
+  .grid-bg {
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                       linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+  .code-window { background: #0D1117; border: 1px solid rgba(255,255,255,0.06); }
+  ::selection { background: rgba(16, 193, 164, 0.3); }
+</style>
+</head>
+<body class="bg-dark text-gray-300 font-sans antialiased overflow-x-hidden">
+
+<!-- Nav -->
+<nav class="fixed top-0 inset-x-0 z-50 bg-dark/70 backdrop-blur-xl border-b border-white/[0.04]">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
+    <a href="#" class="flex items-center gap-3">
+      <svg width="32" height="32" viewBox="0 0 102 102" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient x1="50%" y1="1%" x2="104%" y2="100%" id="lg"><stop stop-color="#10C1A4" offset="0%"/><stop stop-color="#02C4C4" offset="100%"/></linearGradient><rect id="r" width="102" height="102" rx="20"/></defs>
+        <use fill="url(#lg)" href="#r"/>
+        <g fill="#FFF" transform="translate(19,36)"><path d="M17.19 0c0 1.49-.11 2.93-.34 4.35l-.13.7-.01.07-.01.07-.08.44.03-.11.03-.16.02-.1 5.63.01c.24 0 .36-.29.18-.46a3.56 3.56 0 01-1.93-4.32c-.01-.13.07-.24.19-.27l.07-.01h2.71c.14 0 .26.11.27.25.07.99.55 1.79 1.5 2.49.09.07.13.19.1.29l-.04.08-1.03 1.55c-.1.16-.02.36.15.41l.08.01h6.59c.12 0 .23.08.26.2l.01.07v2.07c0 .12-.08.23-.2.26l-.07.01H25.09c-.12 0-.23.08-.26.2l-.01.07v3.52c0 .12.08.23.2.26l.07.01h6.11c.12 0 .23.08.26.2l.01.07v2.07c0 .12-.08.23-.2.26l-.07.01H25.09c-.12 0-.23.08-.26.2l-.01.07v3.67c0 .12.08.23.2.26l.07.01h6.11c.12 0 .23.08.26.2l.01.07v2.07c0 .12-.08.23-.2.26l-.07.01H25.09c-.12 0-.23.08-.26.2l-.01.07v3.67c0 .12.08.23.2.26l.07.01h6.47c.12 0 .23.08.26.2l.01.07v2.07c0 .12-.08.23-.2.26l-.07.01H16.37c-.12 0-.23.08-.26.2l-.01.07v1.58c0 .12-.08.23-.2.26l-.07.01h-2.71c-.12 0-.23-.08-.26-.2l-.01-.07V15.5c0-.27-.34-.37-.49-.15-.07.1-.2.14-.31.1l-.07-.03-2.24-1.52a.27.27 0 01-.07-.37c1.43-2.17 2.48-4.27 3.18-6.42l.06-.19c.42-1.33.72-2.6.88-3.99 0-.03.01-.1.03-.2.22-1.5 1.46-2.63 2.99-2.73L17.19 0zm4.11 7.68H16.1v3.71 3.61 2.71 3.62 3.5c0 .12.08.23.2.26l.07.01h4.94c.12 0 .23-.08.26-.2l.01-.07v-3.53c0-.13-.09-.24-.22-.26l-3.87.003c-.16 0-.28-.14-.27-.29.08-.92.53-1.72 1.21-2.26a.27.27 0 01.17-.05h2.72c.12 0 .23-.08.26-.2l.01-.07v-3.53c0-.13-.09-.24-.22-.26l-.001.02-3.87.003c-.16 0-.28-.14-.27-.29.08-.92.53-1.72 1.21-2.26a.27.27 0 01.17-.05h.71v-.01h2.01c.12 0 .23-.08.26-.2l.01-.07V7.95c0-.12-.08-.23-.2-.26l-.07-.01zM8.98 2.93c.15 0 .27.12.27.27v23.35c0 .54-.44.98-.97.98H.97C.44 27.53 0 27.09 0 26.55V6.19c0-1.7 1.3-3.1 2.95-3.25.16-.01.3.11.3.28v21.43c0 .15.12.27.27.27h2.22c.15 0 .27-.12.27-.27V5.81c0-.15-.12-.27-.27-.27H4.63c-.16 0-.28-.13-.27-.29.08-.91.53-1.72 1.21-2.26a.27.27 0 01.17-.05h3.24z"/><path d="M59.46 0c.49 0 .9.37.96.85l.01.13v12.84c0 .5-.37.91-.84.97l-.13.01H51.31c-.12 0-.23.08-.26.2l-.01.07v1.75c0 .12.08.23.2.26l.07.01h12.42c.16 0 .28.14.27.29-.08.92-.53 1.72-1.21 2.26a.27.27 0 01-.17.06h-7.41c-.18 0-.31.17-.26.34.84 3.06 4.07 5.81 7.43 6.17.12.01.22.1.24.22l.005.07-.19 2.72c-.01.15-.14.27-.29.25-5.14-.49-9.76-4.73-10.53-9.55a.27.27 0 00-.22-.22l-.08-.01h-.05c-.12 0-.23.08-.26.2l-.01.07v9.76c0 .12-.08.23-.2.26l-.07.01h-2.7c-.12 0-.23-.08-.26-.2l-.01-.07v-9.76c0-.12-.08-.23-.2-.26l-.07-.01h-.05c-.13 0-.24.1-.26.23-.77 4.82-5.39 9.06-10.53 9.55-.12.01-.24-.07-.28-.18l-.02-.07-.19-2.72c-.01-.15.1-.27.25-.29 3.37-.36 6.59-3.11 7.43-6.17.04-.15-.05-.29-.19-.33l-.07-.01H35.11c-.16 0-.28-.14-.27-.29.08-.91.53-1.72 1.21-2.26a.27.27 0 01.17-.06h11.31c.12 0 .23-.08.26-.2l.01-.07v-1.75c0-.12-.08-.23-.2-.26l-.07-.01h-8.64c-.49 0-.9-.37-.96-.85l-.01-.13V3.27c0-1.71 1.29-3.11 2.95-3.26.13-.01.25.07.28.21l.01.08v11.63c0 .12.08.23.2.26l.07.01h6.1c.12 0 .23-.08.26-.2l.01-.07V9.19c0-.12-.08-.23-.2-.26l-.07-.01h-4.99c-.16 0-.28-.14-.27-.29.08-.91.53-1.72 1.21-2.26a.27.27 0 01.17-.06h3.88c.12 0 .23-.08.26-.2l.01-.07V2.89c0-.12-.08-.23-.2-.26l-.07-.01h-4.99c-.16 0-.28-.14-.27-.29.08-.91.53-1.72 1.21-2.26A.27.27 0 0143.65 0h15.81zm-2.54 8.92H51.31c-.12 0-.23.08-.26.2l-.01.07v2.73c0 .12.08.23.2.26l.07.01h5.62c.12 0 .23-.08.26-.2l.01-.07V9.19c0-.15-.12-.27-.27-.27zm0-6.3H51.31c-.12 0-.23.08-.26.2l-.01.07v3.15c0 .12.08.23.2.26l.07.01h5.62c.12 0 .23-.08.26-.2l.01-.07V2.89c0-.15-.12-.27-.27-.27z"/></g>
+      </svg>
+      <span class="text-white font-bold text-lg">唯果租房</span>
+    </a>
+    <div class="flex items-center gap-6">
+      <a href="https://github.com/VLT2022/vigo-ai-skills" target="_blank" class="text-gray-400 hover:text-white transition-colors hidden sm:flex items-center gap-1.5 text-sm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="#start" class="bg-brand hover:bg-brand-light text-white font-semibold text-sm px-5 py-2 rounded-lg transition-all cursor-pointer">接入</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero-gradient grid-bg relative min-h-[90vh] flex items-center">
+  <div class="max-w-7xl mx-auto px-6 pt-24 pb-20 w-full">
+    <div class="max-w-3xl">
+      <p class="text-brand-light font-medium text-sm tracking-wide uppercase mb-6">Vigolive MCP · 开放接口</p>
+      <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] mb-8">
+        找直租，<br>让 <span class="text-gradient">AI</span> 帮你聊
+      </h1>
+      <p class="text-lg sm:text-xl text-gray-400 max-w-xl leading-relaxed mb-12">
+        唯果租房全部房源接入 MCP 协议。在你常用的 AI 工具里搜房、评估、验房、一键联系房东——每一套都是房东直发、平台审核的真实房源。
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <a href="#start" class="bg-brand hover:bg-brand-light text-white font-semibold px-8 py-4 rounded-xl text-base transition-all cursor-pointer btn-glow">5 分钟接入</a>
+        <a href="https://github.com/VLT2022/vigo-ai-skills" target="_blank" class="bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-white font-medium px-8 py-4 rounded-xl text-base transition-all cursor-pointer flex items-center gap-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          查看源码
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- 渐隐分割 -->
+  <div class="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-dark to-transparent"></div>
+</section>
+
+<!-- 数字 -->
+<section class="py-16 px-6 border-y border-white/[0.04]">
+  <div class="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
+    <div>
+      <div class="text-3xl sm:text-4xl font-black text-white mb-1">7</div>
+      <div class="text-sm text-gray-500">个 AI 工具</div>
+    </div>
+    <div>
+      <div class="text-3xl sm:text-4xl font-black text-white mb-1">500</div>
+      <div class="text-sm text-gray-500">次/天免费调用</div>
+    </div>
+    <div>
+      <div class="text-3xl sm:text-4xl font-black text-white mb-1">10+</div>
+      <div class="text-sm text-gray-500">覆盖城市</div>
+    </div>
+    <div>
+      <div class="text-3xl sm:text-4xl font-black text-white mb-1">100%</div>
+      <div class="text-sm text-gray-500">直租真房源</div>
+    </div>
+  </div>
+</section>
+
+<!-- 工具 -->
+<section class="py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <p class="text-brand-light font-medium text-sm tracking-wide uppercase mb-4">Tools</p>
+    <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">找房全流程，AI 自动搞定</h2>
+    <p class="text-gray-400 mb-14 max-w-lg">7 个工具覆盖从搜房到联系房东的完整链路。你只管说需求，AI 自己选工具帮你跑。</p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-dark-2 rounded-2xl p-6 border border-white/[0.04] card-glow transition-all cursor-pointer">
+        <code class="text-brand-light text-xs font-mono bg-brand/10 px-2 py-0.5 rounded">search_houses</code>
+        <p class="text-white font-medium mt-3 mb-1.5">搜索房源</p>
+        <p class="text-gray-500 text-sm">按城市、预算、户型、地铁站搜索直租房源</p>
+      </div>
+      <div class="bg-dark-2 rounded-2xl p-6 border border-white/[0.04] card-glow transition-all cursor-pointer">
+        <code class="text-brand-light text-xs font-mono bg-brand/10 px-2 py-0.5 rounded">search_by_commute</code>
+        <p class="text-white font-medium mt-3 mb-1.5">通勤搜索</p>
+        <p class="text-gray-500 text-sm">"望京 SOHO 30 分钟内"——按通勤时间筛选</p>
+      </div>
+      <div class="bg-dark-2 rounded-2xl p-6 border border-white/[0.04] card-glow transition-all cursor-pointer">
+        <code class="text-brand-light text-xs font-mono bg-brand/10 px-2 py-0.5 rounded">get_house_detail</code>
+        <p class="text-white font-medium mt-3 mb-1.5">房源详情</p>
+        <p class="text-gray-500 text-sm">完整图片、描述、水电费、标签</p>
+      </div>
+      <div class="bg-dark-2 rounded-2xl p-6 border border-white/[0.04] card-glow transition-all cursor-pointer">
+        <code class="text-brand-light text-xs font-mono bg-brand/10 px-2 py-0.5 rounded">evaluate_house</code>
+        <p class="text-white font-medium mt-3 mb-1.5">评估性价比</p>
+        <p class="text-gray-500 text-sm">性价比、房况、透明度、时效 4 维数据评分</p>
+      </div>
+      <div class="bg-dark-2 rounded-2xl p-6 border border-white/[0.04] card-glow transition-all cursor-pointer">
+        <code class="text-brand-light text-xs font-mono bg-brand/10 px-2 py-0.5 rounded">verify_house</code>
+        <p class="text-white font-medium mt-3 mb-1.5">验房检测</p>
+        <p class="text-gray-500 text-sm">5 项可靠性检测，GREEN / YELLOW / RED 信号灯</p>
+      </div>
+      <div class="bg-dark-2 rounded-2xl p-6 border border-white/[0.04] card-glow transition-all cursor-pointer">
+        <code class="text-brand-light text-xs font-mono bg-brand/10 px-2 py-0.5 rounded">query_knowledge</code>
+        <p class="text-white font-medium mt-3 mb-1.5">知识查询</p>
+        <p class="text-gray-500 text-sm">小区背景、商圈评价、租房常识</p>
+      </div>
+    </div>
+    <div class="mt-4 bg-dark-2 rounded-2xl p-6 border border-brand/20 card-glow transition-all cursor-pointer flex items-center gap-4">
+      <code class="text-brand-light text-xs font-mono bg-brand/10 px-2 py-0.5 rounded shrink-0">get_contact_qrcode</code>
+      <div>
+        <span class="text-white font-medium">联系房东</span>
+        <span class="text-gray-500 text-sm ml-2">生成二维码，微信扫一扫直接进唯果小程序联系房东看房</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 接入 -->
+<section id="start" class="py-24 px-6 bg-dark-2/50 border-y border-white/[0.04]">
+  <div class="max-w-4xl mx-auto">
+    <p class="text-brand-light font-medium text-sm tracking-wide uppercase mb-4">Quick Start</p>
+    <h2 class="text-3xl sm:text-4xl font-bold text-white mb-14">5 分钟接入</h2>
+
+    <div class="space-y-12">
+      <!-- 1 -->
+      <div class="flex gap-6">
+        <div class="shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-brand-light to-brand-cyan flex items-center justify-center text-white font-bold text-sm">1</div>
+        <div class="flex-1">
+          <h3 class="text-white font-semibold text-lg mb-2">拿一把 API Key</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">微信搜<strong class="text-white">唯果租房</strong>小程序 → 我的 → MCP 连接 → 生成 Key</p>
+        </div>
+      </div>
+      <!-- 2 -->
+      <div class="flex gap-6">
+        <div class="shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-brand-light to-brand-cyan flex items-center justify-center text-white font-bold text-sm">2</div>
+        <div class="flex-1">
+          <h3 class="text-white font-semibold text-lg mb-3">安装 Skill + 配 MCP</h3>
+          <div class="code-window rounded-xl overflow-hidden">
+            <div class="flex items-center gap-1.5 px-4 py-2.5 bg-white/[0.03]">
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <span class="text-gray-600 text-xs ml-2 font-mono">Terminal</span>
+            </div>
+            <pre class="px-5 py-4 text-sm font-mono leading-relaxed overflow-x-auto"><span class="text-gray-500">$</span> <span class="text-gray-200">git clone https://github.com/VLT2022/vigo-ai-skills.git</span>
+<span class="text-gray-500">$</span> <span class="text-gray-200">cd vigo-ai-skills && ./install.sh</span></pre>
+          </div>
+          <div class="code-window rounded-xl overflow-hidden mt-3">
+            <div class="flex items-center gap-1.5 px-4 py-2.5 bg-white/[0.03]">
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <span class="text-gray-600 text-xs ml-2 font-mono">~/.claude.json</span>
+            </div>
+            <pre class="px-5 py-4 text-sm font-mono leading-relaxed overflow-x-auto">{
+  <span class="text-blue-400">"mcpServers"</span>: {
+    <span class="text-blue-400">"vigo-mcp"</span>: {
+      <span class="text-blue-400">"transport"</span>: <span class="text-brand-light">"http"</span>,
+      <span class="text-blue-400">"url"</span>: <span class="text-brand-light">"https://mcp.vigolive.cn/mcp"</span>,
+      <span class="text-blue-400">"headers"</span>: { <span class="text-blue-400">"X-API-Key"</span>: <span class="text-orange-400">"vgk_live_你的key"</span> }
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+      <!-- 3 -->
+      <div class="flex gap-6">
+        <div class="shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-brand-light to-brand-cyan flex items-center justify-center text-white font-bold text-sm">3</div>
+        <div class="flex-1">
+          <h3 class="text-white font-semibold text-lg mb-2">开始找房</h3>
+          <div class="bg-dark rounded-xl px-5 py-4 border border-white/[0.04]">
+            <p class="text-gray-300 text-sm italic leading-relaxed">"帮我在北京望京 SOHO 附近找 5000 以下整租，通勤 30 分钟内。这套值不值？靠不靠谱？帮我联系房东。"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 客户端 -->
+<section class="py-16 px-6">
+  <div class="max-w-4xl mx-auto text-center">
+    <p class="text-gray-500 text-sm mb-6">支持主流 AI 工具</p>
+    <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-gray-500 text-sm font-medium">
+      <span class="hover:text-white transition-colors cursor-default">Claude Desktop</span>
+      <span class="text-white/[0.08]">|</span>
+      <span class="hover:text-white transition-colors cursor-default">Claude Code</span>
+      <span class="text-white/[0.08]">|</span>
+      <span class="hover:text-white transition-colors cursor-default">Cursor</span>
+      <span class="text-white/[0.08]">|</span>
+      <span class="hover:text-white transition-colors cursor-default">Windsurf</span>
+      <span class="text-white/[0.08]">|</span>
+      <span class="hover:text-white transition-colors cursor-default">Codex CLI</span>
+      <span class="text-white/[0.08]">|</span>
+      <span class="hover:text-white transition-colors cursor-default">Cline</span>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-white/[0.04] py-10 px-6">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <svg width="24" height="24" viewBox="0 0 102 102" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient x1="50%" y1="1%" x2="104%" y2="100%" id="lg2"><stop stop-color="#10C1A4" offset="0%"/><stop stop-color="#02C4C4" offset="100%"/></linearGradient><rect id="r2" width="102" height="102" rx="20"/></defs>
+        <use fill="url(#lg2)" href="#r2"/>
+      </svg>
+      <span class="text-gray-500 text-sm">Vigolive唯果租房 · 真实高质价比租房生活平台</span>
+    </div>
+    <span class="text-gray-600 text-xs">mcp.vigolive.cn</span>
+  </div>
+</footer>
+
+</body>
+</html>
