@@ -90,26 +90,9 @@ cd vigo-ai-skills
 
 ---
 
-## 关于隐私
-
-vigolive MCP **不返回任何联系方式和品牌信息**——没有房东电话、没有管家微信、没有"自如""蛋壳"之类的品牌名。想联系房东？只能走二维码扫码进小程序。
-
-如果 AI 告诉你一个房东的电话号码，那一定是它编的，别信。
-
----
-
 ## 示例对话
 
 [examples.md](skills/vigo-find-house/examples.md) 里有 8 个完整对话场景，从简单搜索到全流程决策（搜房 → 看详情 → 评估 → 验房 → 联系管家）都有。
-
----
-
-## 链接
-
-- [vigolive 官网](https://vigolive.cn)
-- [vigolive 小程序](https://vigolive.cn)（微信搜"vigolive"）
-- [MCP Server](https://mcp.vigolive.cn/mcp)
-- [问题反馈](https://github.com/VLT2022/vigo-ai-skills/issues)
 
 ## License
 
